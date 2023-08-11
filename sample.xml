@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:PrintJob xmlns:ns1 = "http://www.hp.com/schemas/imaging/con/cloud/onramp/2009/12/20">
+    <ns1:PrintJobDescription>
+        <ns1:Name>Sample jpg file</ns1:Name>
+        <ns1:JobOriginatingUserName>test.pam01@gmail.com</ns1:JobOriginatingUserName>
+    </ns1:PrintJobDescription>
+    <ns1:PrintJobProcessingElements>
+        <ns1:StartImmediately>false</ns1:StartImmediately>
+        <ns1:DeviceEmailId>264jhx36vhhdg@email.dev.hpeprint.com</ns1:DeviceEmailId>
+ </ns1:PrintJobProcessingElements>
+    <ns1:PrintJobDocuments>
+        <ns1:PrintJobDocument>
+            <ns1:PrintJobDocumentDescription>
+                <ns1:Name>document1</ns1:Name>
+                <ns1:DocumentFormat>PDF</ns1:DocumentFormat>
+            </ns1:PrintJobDocumentDescription>
+            <ns1:PrintJobDocumentProcessingElements>
+                <ns1:OrientationRequested>Portrait</ns1:OrientationRequested>
+            </ns1:PrintJobDocumentProcessingElements>
+        </ns1:PrintJobDocument>
+     </ns1:PrintJobDocuments>
+</ns1:PrintJob>
