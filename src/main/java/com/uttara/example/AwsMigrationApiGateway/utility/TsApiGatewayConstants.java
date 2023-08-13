@@ -2,6 +2,9 @@ package com.uttara.example.AwsMigrationApiGateway.utility;
 
 public interface TsApiGatewayConstants
 {
+    public static final String AWS_ROUTE_HEADER="true";
+    public static final String NGDC_ROUTE_HEADER="ngdc";
+    public  static String TOKEN="token";
     public static final String SHARD_CODE="shardCode";
     public static final String HOST_NAME="hostname";
     public static final String DEVICE_EMAIL_ID="deviceEmailId";
