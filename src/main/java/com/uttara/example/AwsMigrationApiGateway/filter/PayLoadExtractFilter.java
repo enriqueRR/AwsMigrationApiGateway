@@ -62,10 +62,11 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                         String str = exchange.getRequest().getURI().getPath();
                         String str1 =TsApiGatewayConstants.ONRAMP + TsApiGatewayConstants.PRINT_JOB_URI;
                         String str2= str.substring(str1.length(),str.length()-1);
+
                         ServerHttpRequest modifiedRequest = exchange
                                 .getRequest()
                                 .mutate()
-                                .headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, str2))
+                                .headers(h -> h.set(TsApiGatewayConstants.JOB_ID, Parsing.getJobId(str2)))
                                 .build();
 
                         ServerWebExchange modifiedExchange = exchange
@@ -75,7 +76,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                         return chain.filter(modifiedExchange);
                      }
                 //onramp scan jobs
-                    if (exchange.getRequest().getURI().getPath().contains(TsApiGatewayConstants.SCAN_JOB_URI))
+                  if (exchange.getRequest().getURI().getPath().contains(TsApiGatewayConstants.SCAN_JOB_URI))
                     {
                         String str = exchange.getRequest().getURI().getPath();
                         String str1 =TsApiGatewayConstants.ONRAMP + TsApiGatewayConstants.SCAN_JOB_URI;
@@ -83,7 +84,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                         ServerHttpRequest modifiedRequest = exchange
                                 .getRequest()
                                 .mutate()
-                                .headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, str2))
+                                .headers(h -> h.set(TsApiGatewayConstants.JOB_ID, Parsing.getJobId(str2)))
                                 .build();
 
                         ServerWebExchange modifiedExchange = exchange
@@ -101,7 +102,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                         ServerHttpRequest modifiedRequest = exchange
                                 .getRequest()
                                 .mutate()
-                                .headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, str2))
+                                .headers(h -> h.set(TsApiGatewayConstants.JOB_ID, Parsing.getJobId(str2)))
                                 .build();
 
                         ServerWebExchange modifiedExchange = exchange
@@ -123,7 +124,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     ServerHttpRequest modifiedRequest = exchange
                             .getRequest()
                             .mutate()
-                            .headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, str2))
+                            .headers(h -> h.set(TsApiGatewayConstants.JOB_ID, Parsing.getJobId(str2)))
                             .build();
 
                     ServerWebExchange modifiedExchange = exchange
@@ -213,11 +214,6 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                                             .build();
                                 }
 
-                                // HttpServletRequest req = (HttpServletRequest)exchange.getRequest();
-//                                req.setAttribute("deviceEmailId",deviceEmailId);
-                                // by putting reutrn statement in here, urge Java to execute the above statements
-                                // put this final return statement outside then you'll find out that above statements inside here are not executed.
-//                                exchange.getAttributes().put(GATEWAY_ROUTE_ATTR, deviceEmailId);
                                 return chain.filter(exchange.mutate().request(mutatedRequest).build());
                             });
                 });

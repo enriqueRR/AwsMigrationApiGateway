@@ -39,7 +39,7 @@ public interface Parsing {
         }
           return deviceEmaild;
     }
-    public static List<String> getDeviceIdOrJobId(List<String> str) {
+    public static List<String> getJobId(List<String> str) {
         Pattern p = Pattern.compile("[^a-z0-9 ]");
         ArrayList<String> al = new ArrayList<>();
         for (int i = 0; i < str.size(); i++) {
@@ -54,6 +54,10 @@ public interface Parsing {
             }
         }
         return al;
+    }
+    public static String getJobId(String str){
+        String[] arr = str.split("/");
+          return arr[0];
     }
 }
 

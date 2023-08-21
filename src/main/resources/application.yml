@@ -1,6 +1,12 @@
+custom:
+  ngdcLoadBalancerNames: onramp.devpie.hpeprint.com, lb2, lb3
+  awsLoadBalancerNames: internet-onramp-dev-248928633.us-west-2.elb.amazonaws.com, internal-dev-gen1-eprintcenter-alb-1037379426.us-west-2.elb.amazonaws.com, lb3
+
 management:
+  endpoint:
+    gateway:
+      enabled: true
   endpoints:
     web:
       exposure:
-        include: hystrix.stream
-
+        include: gateway

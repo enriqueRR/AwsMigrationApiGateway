@@ -43,7 +43,7 @@ public class ShardCodeFilter implements GlobalFilter, Ordered {
                     .mutate()
                     .request(modifiedRequest)
                     .build();
-
+logger.info("---------------------");
             return chain.filter(modifiedExchange);
         }
         return chain.filter(exchange);
