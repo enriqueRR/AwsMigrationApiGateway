@@ -31,7 +31,7 @@ public class ServiceRouteConfiguration {
 
 
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder, RedirectionFilter redirectionFilter, WebClientConfig config) {
+    public RouteLocator customRouteLocator(RouteLocatorBuilder builder, RedirectionFilter redirectionFilter) {
 
         return builder
                 .routes()
