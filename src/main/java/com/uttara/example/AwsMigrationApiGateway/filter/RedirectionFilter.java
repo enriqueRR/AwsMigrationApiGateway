@@ -1,5 +1,7 @@
 package com.uttara.example.AwsMigrationApiGateway.filter;
 
+import com.uttara.example.AwsMigrationApiGateway.entity.ApiRouteMap;
+import com.uttara.example.AwsMigrationApiGateway.service.Gen1DeviceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,9 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
     @Value("${custom.awsLoadBalancerNames}")
     private String awsLoadBalancerNames;
 
+    @Autowired
+    private Gen1DeviceService gen1DeviceService;
+
     private Mono<Void> redirectToSpecificUri(ServerWebExchange exchange,String newUri) {
         // Implement redirection logic here
         // For example:
@@ -63,12 +68,14 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         logger.info("---Inside redirection filter-------");
         String shardCode = headers.get(TsApiGatewayConstants.SHARD_CODE);
         String hostname = headers.get(TsApiGatewayConstants.HOST_NAME);
+        ApiRouteMap apiRouteMap =  gen1DeviceService.findRouteUri("onramp");
         if (hostname!=null && hostname.contains("amazonaws")) {
             logger.info("-----AWS route------");
-            String[] lbNames = awsLoadBalancerNames.split(",");
+//            String[] lbNames = awsLoadBalancerNames.split(",");
             String selectedLoadBalancer = null;
             if (exchange.getRequest().getURI().getPath().startsWith(TsApiGatewayConstants.ONRAMP)) {
-                selectedLoadBalancer = lbNames[0];
+
+                selectedLoadBalancer = apiRouteMap.getAwsRouteUri();
             }
             // Get the original request URI
             String originalUri = exchange.getRequest().getURI().toString();
@@ -90,10 +97,10 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             return chain.filter(exchange);
         } else if (hostname!=null && !hostname.contains("amazonaws")){
             logger.info("-----NGDC route------");
-            String[] lbNames = ngdcLoadBalancerNames.split(",");
+//            String[] lbNames = ngdcLoadBalancerNames.split(",");
             String selectedLoadBalancer = null;
             if (exchange.getRequest().getURI().getPath().startsWith(TsApiGatewayConstants.ONRAMP)) {
-                selectedLoadBalancer = lbNames[0];
+                selectedLoadBalancer = apiRouteMap.getNgdcRouteUri();
             }
             // Get the original request URI
             String originalUri = exchange.getRequest().getURI().toString();
@@ -116,10 +123,10 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         else
         {
             logger.info("----- server health check ------");
-            String[] lbNames = ngdcLoadBalancerNames.split(",");
+//            String[] lbNames = ngdcLoadBalancerNames.split(",");
             String selectedLoadBalancer = null;
             if (exchange.getRequest().getURI().getPath().startsWith(TsApiGatewayConstants.ONRAMP)) {
-                selectedLoadBalancer = lbNames[0];
+                selectedLoadBalancer = apiRouteMap.getNgdcRouteUri();
             }
             String newUri = "https://" + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
             logger.info("-----health check url-----" + newUri);
