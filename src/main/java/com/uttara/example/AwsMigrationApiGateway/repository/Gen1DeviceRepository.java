@@ -12,5 +12,5 @@ public interface Gen1DeviceRepository extends JpaRepository<Device,String> {
     // custom query to search to blog post by title or content
     Device findByDeviceId(String deviceId);
     Device findDeviceByDeviceEmailId(String deviceEmailId);
-    Device findDeviceByModelNumberAndSerialNumber(String modelNumber,String serialNumber);
+    Device findHostNameByShardCode(String shardCode);
 }

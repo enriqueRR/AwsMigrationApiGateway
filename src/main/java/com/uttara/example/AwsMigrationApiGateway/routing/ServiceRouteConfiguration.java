@@ -30,19 +30,6 @@ public class ServiceRouteConfiguration {
                         .uri("no://op"))
                 .build();
     }
-/*
-        return builder.routes().route("client-portal",
-                r -> r.path("/**")
-                .filters(f -> {
-            f.filter(redirectionFilter);
-                     *//*  try {
-                                    f.redirect(HttpStatus.PERMANENT_REDIRECT,new URL(ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR));
-                          } catch (MalformedURLException e){
-                                    throw new RuntimeException(e);
-                                }*//*
-            return f;
-        }).uri("http://localhost:8081")).build();*/
-
-    }
+}
 
 

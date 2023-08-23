@@ -32,6 +32,16 @@ public class Gen1DeviceService {
             }
        return shardCode;
     }
+    public String getHostNameByShardCode(String code) {
+        Device device = gen1DeviceRepository.findHostNameByShardCode(code.substring(0,3));
+        String shardCode=null;
+        if(device!=null) {
+            shardCode = device.getShard().getCode()+"/"+device.getShard().getHostname();
+        }
+        return shardCode;
+    }
+
+
 
 
 }

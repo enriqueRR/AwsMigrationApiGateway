@@ -34,61 +34,75 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         logger.info("---DeviceIdFilter----");
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
-        if (headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID) != null)
-        {
+        if (headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID) != null) {
             String shardCodeWithHostname = gen1DeviceService.getDeviceEmailId(headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID));
             System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
-                if (shardCodeWithHostname != null) {
-                    ServerHttpRequest modifiedRequest = exchange
-                            .getRequest()
-                            .mutate()
-                            .headers(h -> h.set(TsApiGatewayConstants.SHARD_CODE_HOST_NAME, shardCodeWithHostname))
-                            .build();
+            if (shardCodeWithHostname != null) {
+                ServerHttpRequest modifiedRequest = exchange
+                        .getRequest()
+                        .mutate()
+                        .headers(h -> h.set(TsApiGatewayConstants.SHARD_CODE_HOST_NAME, shardCodeWithHostname))
+                        .build();
 
-                    ServerWebExchange modifiedExchange = exchange
-                            .mutate()
-                            .request(modifiedRequest)
-                            .build();
-                    return chain.filter(modifiedExchange);
-                }
-                else
-                {
-                    return chain.filter(exchange);
-                }
+                ServerWebExchange modifiedExchange = exchange
+                        .mutate()
+                        .request(modifiedRequest)
+                        .build();
+                return chain.filter(modifiedExchange);
+            } else {
+                return chain.filter(exchange);
             }
-        else if (headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID) != null)
-            {
+        } else if (headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID) != null) {
 
-                String shardCodeWithHostname = gen1DeviceService.getDevices(headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID));
-                System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
-                if (shardCodeWithHostname != null) {
-                    ServerHttpRequest modifiedRequest = exchange
-                            .getRequest()
-                            .mutate()
-                            .headers(h -> h.set(TsApiGatewayConstants.SHARD_CODE_HOST_NAME, shardCodeWithHostname))
-                            .build();
+            String shardCodeWithHostname = gen1DeviceService.getDevices(headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID));
+            System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
+            if (shardCodeWithHostname != null) {
+                ServerHttpRequest modifiedRequest = exchange
+                        .getRequest()
+                        .mutate()
+                        .headers(h -> h.set(TsApiGatewayConstants.SHARD_CODE_HOST_NAME, shardCodeWithHostname))
+                        .build();
 
-                    ServerWebExchange modifiedExchange = exchange
-                            .mutate()
-                            .request(modifiedRequest)
-                            .build();
+                ServerWebExchange modifiedExchange = exchange
+                        .mutate()
+                        .request(modifiedRequest)
+                        .build();
 
-                    return chain.filter(modifiedExchange);
-                }
-                else
-                {
-                    return chain.filter(exchange);
-                }
+                return chain.filter(modifiedExchange);
+            } else {
+                return chain.filter(exchange);
+            }
 
-            }else{
+        } else if (headers.get(TsApiGatewayConstants.JOB_ID) != null) {
+
+            String shardCodeWithHostname = gen1DeviceService.getHostNameByShardCode(headers.get(TsApiGatewayConstants.JOB_ID));
+            System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
+            if (shardCodeWithHostname != null) {
+                ServerHttpRequest modifiedRequest = exchange
+                        .getRequest()
+                        .mutate()
+                        .headers(h -> h.set(TsApiGatewayConstants.SHARD_CODE_HOST_NAME, shardCodeWithHostname))
+                        .build();
+
+                ServerWebExchange modifiedExchange = exchange
+                        .mutate()
+                        .request(modifiedRequest)
+                        .build();
+
+                return chain.filter(modifiedExchange);
+            } else {
+                return chain.filter(exchange);
+            }
+
+        } else {
 
             return chain.filter(exchange);
         }
 
-        }
-
-        @Override
-        public int getOrder () {
-            return 0;
-        }
     }
+
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+}

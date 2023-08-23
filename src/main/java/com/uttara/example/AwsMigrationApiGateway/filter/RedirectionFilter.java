@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.OrderedGatewayFilter;
+import org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.cloud.gateway.route.Route;
 import org.springframework.cloud.gateway.route.RouteDefinition;
@@ -87,19 +88,9 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            ServerHttpRequest modifiedRequest = exchange
-                    .getRequest()
-                    .mutate()
-                    .uri(uri)
-                    .build();
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
 
-            ServerWebExchange modifiedExchange = exchange
-                    .mutate()
-                    .request(modifiedRequest)
-                    .build();
-            modifiedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-
-            return chain.filter(modifiedExchange);
+            return chain.filter(exchange);
         } else if (hostname!=null && !hostname.contains("amazonaws")){
             logger.info("-----NGDC route------");
             String[] lbNames = ngdcLoadBalancerNames.split(",");
@@ -121,19 +112,9 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            ServerHttpRequest modifiedRequest = exchange
-                    .getRequest()
-                    .mutate()
-                    .uri(uri)
-                    .build();
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
 
-            ServerWebExchange modifiedExchange = exchange
-                    .mutate()
-                    .request(modifiedRequest)
-                    .build();
-            modifiedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-
-            return chain.filter(modifiedExchange);
+            return chain.filter(exchange);
         }
         else
         {
@@ -151,28 +132,19 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
-            ServerHttpRequest modifiedRequest = exchange
-                    .getRequest()
-                    .mutate()
-                    .uri(uri)
-                    .build();
 
-            ServerWebExchange modifiedExchange = exchange
-                    .mutate()
-                    .request(modifiedRequest)
-                    .build();
-            modifiedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
 
-            return chain.filter(modifiedExchange);
+            return chain.filter(exchange);
         }
 
     }
 
 
-
-
     @Override
     public int getOrder() {
-        return 2;
+        return RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER + 1;
     }
+
+
 }
