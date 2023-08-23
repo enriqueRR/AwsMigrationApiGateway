@@ -62,10 +62,6 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                         String str = exchange.getRequest().getURI().getPath();
                         String str1 =TsApiGatewayConstants.ONRAMP + TsApiGatewayConstants.PRINT_JOB_URI;
                         String str2= str.substring(str1.length(),str.length()-1);
-                        logger.info("---str----"+str);
-                        logger.info("---str1----"+str1);
-                        logger.info("---str2----"+str2);
-                        logger.info("---JOB_ID {}----",Parsing.getJobId(str2));
                         ServerHttpRequest modifiedRequest = exchange
                                 .getRequest()
                                 .mutate()

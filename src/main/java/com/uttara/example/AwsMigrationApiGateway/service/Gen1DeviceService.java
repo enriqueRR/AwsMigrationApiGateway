@@ -1,8 +1,10 @@
 package com.uttara.example.AwsMigrationApiGateway.service;
 
 
+import com.uttara.example.AwsMigrationApiGateway.common.Shard;
 import com.uttara.example.AwsMigrationApiGateway.entity.Device;
 
+import com.uttara.example.AwsMigrationApiGateway.entity.ShardImpl;
 import com.uttara.example.AwsMigrationApiGateway.repository.Gen1DeviceRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -33,12 +35,12 @@ public class Gen1DeviceService {
        return shardCode;
     }
     public String getHostNameByShardCode(String code) {
-        Device device = gen1DeviceRepository.findHostNameByShardCode(code.substring(0,3));
-        String shardCode=null;
-        if(device!=null) {
-            shardCode = device.getShard().getCode()+"/"+device.getShard().getHostname();
+        Shard shard = gen1DeviceRepository.findHostNameByShardCode(code.substring(0,3));
+        String shardHostName=null;
+        if(shard!=null) {
+            shardHostName = shard.getCode()+"/"+shard.getHostname();
         }
-        return shardCode;
+        return shardHostName;
     }
 
 

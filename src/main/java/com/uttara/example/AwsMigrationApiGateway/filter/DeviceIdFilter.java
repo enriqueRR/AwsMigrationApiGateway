@@ -36,7 +36,6 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
         if (headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID) != null) {
             String shardCodeWithHostname = gen1DeviceService.getDeviceEmailId(headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID));
-            System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
             if (shardCodeWithHostname != null) {
                 ServerHttpRequest modifiedRequest = exchange
                         .getRequest()
@@ -53,9 +52,7 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange);
             }
         } else if (headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID) != null) {
-
             String shardCodeWithHostname = gen1DeviceService.getDevices(headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID));
-            System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
             if (shardCodeWithHostname != null) {
                 ServerHttpRequest modifiedRequest = exchange
                         .getRequest()
@@ -74,9 +71,7 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
             }
 
         } else if (headers.get(TsApiGatewayConstants.JOB_ID) != null) {
-
             String shardCodeWithHostname = gen1DeviceService.getHostNameByShardCode(headers.get(TsApiGatewayConstants.JOB_ID));
-            System.out.println("shardCodeWithHostname :" + shardCodeWithHostname);
             if (shardCodeWithHostname != null) {
                 ServerHttpRequest modifiedRequest = exchange
                         .getRequest()

@@ -62,10 +62,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
         logger.info("---Inside redirection filter-------");
         String shardCode = headers.get(TsApiGatewayConstants.SHARD_CODE);
-        logger.info("shardCode : " + shardCode);
         String hostname = headers.get(TsApiGatewayConstants.HOST_NAME);
-        logger.info("hostname : " + hostname);
-        System.out.println("shardCode : +" + shardCode + "  hostname :" + hostname);
         if (hostname!=null && hostname.contains("amazonaws")) {
             logger.info("-----AWS route------");
             String[] lbNames = awsLoadBalancerNames.split(",");

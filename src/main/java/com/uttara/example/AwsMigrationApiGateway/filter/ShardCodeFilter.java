@@ -25,7 +25,6 @@ public class ShardCodeFilter implements GlobalFilter, Ordered {
         logger.info("----ShardCodeFilter executed----");
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
         String shardCodeWithHostname =  headers.get(TsApiGatewayConstants.SHARD_CODE_HOST_NAME);
-        System.out.println("shardCodeWithHostname :"+shardCodeWithHostname);
         if(shardCodeWithHostname!=null)
         {
            List<String> s = Stream.of(shardCodeWithHostname.split("/")).collect(Collectors.toList());
