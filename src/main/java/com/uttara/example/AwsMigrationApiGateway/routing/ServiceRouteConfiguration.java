@@ -1,22 +1,12 @@
 package com.uttara.example.AwsMigrationApiGateway.routing;
 
-import com.uttara.example.AwsMigrationApiGateway.config.WebClientConfig;
+
 import com.uttara.example.AwsMigrationApiGateway.filter.RedirectionFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
-import org.springframework.cloud.gateway.support.ServerWebExchangeUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ServerWebExchange;
-
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
-import static org.springframework.cloud.gateway.filter.RouteToRequestUrlFilter.ROUTE_TO_URL_FILTER_ORDER;
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.*;
 
 /**
  * Note: We want to keep this as an example of configuring a Route with a custom filter
@@ -26,21 +16,20 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.*
 @Configuration
 public class ServiceRouteConfiguration {
 
-/*  @Autowired
-    private ServerWebExchange exchange;*/
+  @Autowired
+
+    private RedirectionFilter redirectionFilter;
 
 
     @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder, RedirectionFilter redirectionFilter) {
-
-        return builder
-                .routes()
-                .route(predicateSpec -> predicateSpec
-                        .path("/**")
-                        .filters(spec -> spec.filter(redirectionFilter))
-                        .uri("http://localhost:8081"))
+    public RouteLocator myRoutes(RouteLocatorBuilder builder) {
+        return builder.routes()
+                .route(r -> r
+                        .alwaysTrue()
+                        .filters(f -> f.filter(redirectionFilter))
+                        .uri("no://op"))
                 .build();
-
+    }
 /*
         return builder.routes().route("client-portal",
                 r -> r.path("/**")
@@ -55,5 +44,5 @@ public class ServiceRouteConfiguration {
         }).uri("http://localhost:8081")).build();*/
 
     }
-}
+
 

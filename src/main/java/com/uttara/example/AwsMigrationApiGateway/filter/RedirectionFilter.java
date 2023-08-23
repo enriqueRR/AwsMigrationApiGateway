@@ -65,7 +65,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         String hostname = headers.get(TsApiGatewayConstants.HOST_NAME);
         logger.info("hostname : " + hostname);
         System.out.println("shardCode : +" + shardCode + "  hostname :" + hostname);
-        if (hostname.contains("amazonaws")) {
+        if (hostname!=null && hostname.contains("amazonaws")) {
             logger.info("-----AWS route------");
             String[] lbNames = awsLoadBalancerNames.split(",");
             String selectedLoadBalancer = null;
@@ -100,7 +100,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             modifiedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
 
             return chain.filter(modifiedExchange);
-        } else {
+        } else if (hostname!=null && !hostname.contains("amazonaws")){
             logger.info("-----NGDC route------");
             String[] lbNames = ngdcLoadBalancerNames.split(",");
             String selectedLoadBalancer = null;
@@ -135,6 +135,36 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
 
             return chain.filter(modifiedExchange);
         }
+        else
+        {
+            logger.info("----- server health check ------");
+            String[] lbNames = ngdcLoadBalancerNames.split(",");
+            String selectedLoadBalancer = null;
+            if (exchange.getRequest().getURI().getPath().startsWith(TsApiGatewayConstants.ONRAMP)) {
+                selectedLoadBalancer = lbNames[0];
+            }
+            String newUri = "https://" + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            logger.info("-----health check url-----" + newUri);
+            URI uri = null;
+            try {
+                uri=new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            ServerHttpRequest modifiedRequest = exchange
+                    .getRequest()
+                    .mutate()
+                    .uri(uri)
+                    .build();
+
+            ServerWebExchange modifiedExchange = exchange
+                    .mutate()
+                    .request(modifiedRequest)
+                    .build();
+            modifiedExchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+
+            return chain.filter(modifiedExchange);
+        }
 
     }
 
@@ -143,6 +173,6 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return 3;
+        return 2;
     }
 }
