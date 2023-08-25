@@ -97,21 +97,108 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
     }
 
     private String fetchLBRoute(String path, String hostname) {
-        if (path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findAwsRouteUri(ONRAMP.substring(1));
-        } else if (path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findNgdcRouteUri(ONRAMP.substring(1));
-        } else if (path.startsWith(OFFRAMP) && hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findAwsRouteUri(OFFRAMP.substring(1));
-        } else if (path.startsWith(OFFRAMP) && !hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findNgdcRouteUri(OFFRAMP.substring(1));
-        } else if (path.startsWith(EPRINT_CENTER) && hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findAwsRouteUri(EPRINT_CENTER.substring(1));
-        } else if (path.startsWith(EPRINT_CENTER) && !hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER.substring(1));
-        } else if (path.startsWith(HISE) && !hostname.contains(AMAZON_AWS)) {
-            return gen1DeviceService.findNgdcRouteUri(HISE.substring(1));
-        } else return gen1DeviceService.findAwsRouteUri(HISE.substring(1));
+        //onramp /jobs/printjobs/
+        if (path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(PRINT_JOB_URI);
+        }
+        if(path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(PRINT_JOB_URI);
+        }
+        //eprintcenter /jobs/printjobs/
+        if(path.startsWith(EPRINT_CENTER) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(PRINT_JOB_URI);
+        }
+         if(path.startsWith(EPRINT_CENTER) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(PRINT_JOB_URI);
+        }
+        //onramp /devices/printers/
+        if (path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(DEVICE_JOB_URI);
+        }
+        if(path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(DEVICE_JOB_URI);
+        }
+        //eprintcenter /devices/printers/
+        if (path.startsWith(EPRINT_CENTER) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(DEVICE_JOB_URI);
+        }
+        if(path.startsWith(EPRINT_CENTER) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(DEVICE_JOB_URI);
+        }
+        //onramp /jobs/scanjobs/
+        if (path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(SCAN_JOB_URI);
+        }
+        if(path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(SCAN_JOB_URI);
+        }
+        //onramp /jobs/deliveryonlyjobs/
+        if (path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(DELIVERY_ONLY_JOB_URI);
+        }
+        if(path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(DELIVERY_ONLY_JOB_URI);
+        }
+        //onramp /jobs/renderjobs/
+        if (path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(RENDER_JOB_URI);
+        }
+        if(path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(RENDER_JOB_URI);
+        }
+        //onramp /tokens/session/token routing to ngdc end point
+        if(path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS)||!hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
+        }
+        //onramp /tokens/session/secret  routing to ngdc end point
+        if(path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS)||!hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
+        }
+        //onramp /Authorization
+        if(path.startsWith(ONRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(RENDER_JOB_URI);
+        }
+        if(path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(RENDER_JOB_URI);
+        }
+        //eprintcenter owner ship
+        if (path.startsWith(EPRINT_CENTER) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(OWNER_SHIP);
+        }
+        if(path.startsWith(EPRINT_CENTER) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(OWNER_SHIP);
+        }
+        //offramp /Printers
+        if (path.startsWith(OFFRAMP) && hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findAwsRouteUri(OFFRAMP_PRINTERS);
+        }
+        if(path.startsWith(OFFRAMP) && !hostname.contains(AMAZON_AWS))
+        {
+            return gen1DeviceService.findNgdcRouteUri(OFFRAMP_PRINTERS);
+        }
+        return "no route found";
+
     }
 
     @Override

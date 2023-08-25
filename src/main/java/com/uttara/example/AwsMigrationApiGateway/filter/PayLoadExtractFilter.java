@@ -53,23 +53,48 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
             ServerHttpRequest modifiedRequest = null;
             //---------------------onramp-------------------------------------/
             if (uriPath.startsWith(ONRAMP)) {
-                //onramp print jobs
+                //onramp /jobs/printjobs/
                 if (exchange.getRequest().getURI().getPath().contains(PRINT_JOB_URI)) {
                     String str1 = ONRAMP + PRINT_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+
                 }
-                //onramp scan jobs
+                //onramp /jobs/scanjobs/
                 if (uriPath.contains(SCAN_JOB_URI)) {
                     String str1 = ONRAMP + SCAN_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
                 }
-                //onramp deliveryonly jobs
+                //onramp /jobs/deliveryonlyjobs/
                 if (uriPath.contains(DELIVERY_ONLY_JOB_URI)) {
                     String str1 = ONRAMP + DELIVERY_ONLY_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                }
+                //onramp /devices/printers/
+                if (uriPath.contains(DEVICE_JOB_URI)) {
+                    String str1 = ONRAMP + DEVICE_JOB_URI;
+                    String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
+                    modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                }
+                //onramp /jobs/renderjobs/
+                if (uriPath.contains(RENDER_JOB_URI)) {
+                    String str1 = ONRAMP + RENDER_JOB_URI;
+                    String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
+                    modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                }
+                //onramp /tokens/session/token
+                if (uriPath.contains(SESSION_TOKEN)) {
+                    return chain.filter(exchange);
+                }
+                //onramp /tokens/session/secret
+                if (uriPath.contains(SCERET_TOKEN)) {
+                    return chain.filter(exchange);
+                }
+                //onramp /Authorization
+                if (uriPath.contains(AUTHORIZATION)) {
+                    return chain.filter(exchange);
                 }
                 ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                 return chain.filter(modifiedExchange);
@@ -78,14 +103,14 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
              * if block will be executed for eprintcenter 'GET' request
              */
             if (uriPath.startsWith(EPRINT_CENTER)) {
-                //eprintcenter print jobs
+                //eprintcenter /jobs/printjobs/
                 if (uriPath.contains(PRINT_JOB_URI)) {
                     String str1 = EPRINT_CENTER + PRINT_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
                 }
-                //eprintcenter devices prints
-                if (uriPath.contains(PRINTER_URI_ONRAMP)) {
+                //eprintcenter /devices/printers/
+                if (uriPath.contains(DEVICE_JOB_URI)) {
                     String printerId = findValueFromUri(uriPath, 4);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
                 }
@@ -102,6 +127,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
              * if block will be executed for offramp 'GET' request
              */
             if (uriPath.startsWith(OFFRAMP)) {
+                //offramp /Printers
                 if (uriPath.contains(OFFRAMP_PRINTERS)) {
                     String printerId = findValueFromUri(uriPath, 3);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
@@ -140,15 +166,10 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                         if (deviceEmailId != null) {
                             exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.DEVICE_EMAIL_ID, deviceEmailId)).build();
                         } else {
-                            if (exchange.getRequest().getURI().getPath().contains(HISE)) {
-                                String deviceId = Parsing.getDeviceEmailId(body, DEVICE_ID_XPATH_HISE);
-                                logger.info("deviceId: {}", deviceId);
-                                exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, deviceId)).build();
-                            } else {
-                                String deviceId = Parsing.getDeviceEmailId(body, DEVICE_ID_XPATH);
-                                logger.info("deviceId: {}", deviceId);
-                                exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, deviceId)).build();
-                            }
+                            String deviceId = Parsing.getDeviceEmailId(body, DEVICE_ID_XPATH);
+                            logger.info("deviceId: {}", deviceId);
+                            exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, deviceId)).build();
+
                         }
 
                         return chain.filter(exchange.mutate().request(mutatedRequest).build());
