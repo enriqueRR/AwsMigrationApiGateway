@@ -87,4 +87,27 @@ class NamespaceResolver implements NamespaceContext {
         return null;
     }
 
+    public static String getPrinterID(String body, String Xpath) {
+        String printerId = new String();
+        try {
+            //Parse XML file
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(body)));
+
+            //Get XPath expression
+            XPathFactory xpathfactory = XPathFactory.newInstance();
+            XPath xpath = xpathfactory.newXPath();
+            xpath.setNamespaceContext(new NamespaceResolver(doc));
+            XPathExpression expr = xpath.compile(Xpath);
+            Object result = expr.evaluate(doc, XPathConstants.NODESET);
+            NodeList nodes = (NodeList) result;
+            printerId = nodes.item(0)!=null?nodes.item(0).getNodeValue():null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return printerId;
+    }
+
 }

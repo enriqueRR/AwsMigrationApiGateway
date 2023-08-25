@@ -16,10 +16,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ServiceRouteConfiguration {
 
-  @Autowired
-
+    @Autowired
     private RedirectionFilter redirectionFilter;
-
 
     @Bean
     public RouteLocator myRoutes(RouteLocatorBuilder builder) {

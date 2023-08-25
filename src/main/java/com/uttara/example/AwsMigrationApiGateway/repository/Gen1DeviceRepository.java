@@ -20,7 +20,10 @@ public interface Gen1DeviceRepository extends JpaRepository<Device,String> {
     @Query(nativeQuery = true, value = "SELECT * FROM Shard s WHERE s.code = :shardCode")
     Shard findHostNameByShardCode(String shardCode);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM ApiRouteMap s WHERE s.api_end_point_name = :apiEndPointName")
-    ApiRouteMap findRouteUri(String apiEndPointName);
+    @Query(nativeQuery = true, value = "SELECT s.aws_route_uri FROM ApiRouteMap s WHERE s.api_end_point_name = :apiEndPointName")
+    String findAwsRouteUri(String apiEndPointName);
+
+    @Query(nativeQuery = true, value = "SELECT s.ngdc_route_uri FROM ApiRouteMap s WHERE s.api_end_point_name = :apiEndPointName")
+    String findNgdcRouteUri(String apiEndPointName);
 
 }
