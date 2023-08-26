@@ -7,7 +7,9 @@ import com.uttara.example.AwsMigrationApiGateway.repository.Gen1DeviceRepository
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 
@@ -64,5 +66,13 @@ public class Gen1DeviceService {
         return gen1DeviceRepository.findNgdcRouteUri(apiEndPointName);
     }
 
-
+    @CacheEvict(value = {"deviceId",
+            "deviceEmailId",
+            "code",
+            "awsRoute",
+            "ngdcRoute"}, allEntries = true)
+    @Scheduled(fixedRateString ="${caching.spring.clear}")
+    public void evictingCache() {
+        logger.info("emptying Cache");
+    }
 }
