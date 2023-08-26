@@ -42,7 +42,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
         // Only apply on POST,PUT requests and If body contains xml
         // If body contains xml files then we are going inside and extracting the deviceId or deviceEmailId
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
-        if ((HttpMethod.POST.equals(exchange.getRequest().getMethod()) || HttpMethod.PUT.equals(exchange.getRequest().getMethod())) && (headers.get(CONTENT_TYPE) != null)) {
+        if ((HttpMethod.POST.equals(exchange.getRequest().getMethod())) && (headers.get(CONTENT_TYPE) != null)) {
             return logRequestBody(exchange, chain);
         } else if (HttpMethod.POST.equals(exchange.getRequest().getMethod()) && uriPath.startsWith(EPRINT_CENTER)) { //eprintcenter PUT request
             String printerId = findValueFromUri(uriPath, 4);
@@ -92,10 +92,6 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                 if (uriPath.contains(SCERET_TOKEN)) {
                     return chain.filter(exchange);
                 }
-                //onramp /Authorization
-                if (uriPath.contains(AUTHORIZATION)) {
-                    return chain.filter(exchange);
-                }
                 ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                 return chain.filter(modifiedExchange);
             }
@@ -116,8 +112,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                 }
                 //eprintcenter owner ship
                 if (uriPath.contains(OWNER_SHIP)) {
-                    String printerId = findValueFromUri(uriPath, 3);
-                    modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
+                    return chain.filter(exchange);
                 }
                 ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                 return chain.filter(modifiedExchange);

@@ -8,11 +8,6 @@ import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Note: We want to keep this as an example of configuring a Route with a custom filter
- * <p>
- * This corresponds with the properties configuration we have
- */
 @Configuration
 public class ServiceRouteConfiguration {
 

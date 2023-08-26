@@ -2,6 +2,7 @@ package com.uttara.example.AwsMigrationApiGateway.utility;
 
 public interface TsApiGatewayConstants {
 
+    public static final String namespacePrefix = "/ns1";
     public static final String SHARD_CODE = "shardCode";
     public static final String HOST_NAME = "hostname";
     public static final String SHARD_CODE_HOST_NAME = "shardCodeWithHostname";
@@ -23,8 +24,7 @@ public interface TsApiGatewayConstants {
     public static final String DELIVERY_ONLY_JOB_URI = "/jobs/deliveryonlyjobs/";
     public static final String SESSION_TOKEN = "/tokens/session/token";
     public static final String SCERET_TOKEN = "/tokens/session/secret";
-    public static final String AUTHORIZATION = "/Authorization";
-    public static final String OFFRAMP_PRINTERS = "/Printers";
+    public static final String OFFRAMP_PRINTERS = "/Printers/";
     public static final String OWNER_SHIP = "/ownerships";
 
 
