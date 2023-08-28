@@ -69,7 +69,7 @@ public class Gen1DeviceService {
     @CacheEvict(value = {
             "awsRoute",
             "ngdcRoute"}, allEntries = true)
-    @Scheduled(fixedRateString ="${caching.spring.clear}")
+    @Scheduled(cron ="${caching.spring.clear.cron}")
     public void evictingCache() {
         logger.info("emptying Cache");
     }
