@@ -12,6 +12,6 @@ public class SpringCachingConfig {
 
     @Bean
     public CacheManager cacheManager() {
-        return new ConcurrentMapCacheManager("deviceId","deviceEmailId","code","awsRoute","ngdcRoute");
+        return new ConcurrentMapCacheManager("awsRoute","ngdcRoute");
     }
 }

@@ -21,7 +21,7 @@ public class Gen1DeviceService {
     @Autowired
     private Gen1DeviceRepository gen1DeviceRepository;
 
-    @Cacheable(cacheNames = "deviceId")
+
     public String getDevices(String deviceId) {
         logger.info("methodName: getDevices");
         Device device = gen1DeviceRepository.findByDeviceId(deviceId);
@@ -32,7 +32,7 @@ public class Gen1DeviceService {
         return shardCode;
     }
 
-    @Cacheable(cacheNames = "deviceEmailId")
+
     public String getDeviceEmailId(String deviceEmailId) {
         logger.info("methodName: getDeviceEmailId");
         Device device = gen1DeviceRepository.findDeviceByDeviceEmailId(deviceEmailId);
@@ -43,7 +43,7 @@ public class Gen1DeviceService {
         return shardCode;
     }
 
-    @Cacheable(cacheNames = "code")
+
     public String getHostNameByShardCode(String code) {
         logger.info("methodName: getHostNameByShardCode");
         Shard shard = gen1DeviceRepository.findHostNameByShardCode(code.substring(0, 3));
@@ -66,9 +66,7 @@ public class Gen1DeviceService {
         return gen1DeviceRepository.findNgdcRouteUri(apiEndPointName);
     }
 
-    @CacheEvict(value = {"deviceId",
-            "deviceEmailId",
-            "code",
+    @CacheEvict(value = {
             "awsRoute",
             "ngdcRoute"}, allEntries = true)
     @Scheduled(fixedRateString ="${caching.spring.clear}")
