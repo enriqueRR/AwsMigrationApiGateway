@@ -8,6 +8,7 @@ public interface TsApiGatewayConstants {
     public static final String SHARD_CODE_HOST_NAME = "shardCodeWithHostname";
     public static final String DEVICE_EMAIL_ID = "deviceEmailId";
     public static final String PRINTER_CLOUD_ID = "printerID";
+    public static final String OWNER_SHIP_ID = "ownershipID";
     public static final String JOB_ID = "jobId";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String DEVICE_ID_XPATH = "/ns1:PrintJob/ns1:PrintJobProcessingElements/ns1:DeviceId/text()";

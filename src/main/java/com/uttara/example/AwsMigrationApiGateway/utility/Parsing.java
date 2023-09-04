@@ -7,6 +7,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.*;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
@@ -41,6 +43,27 @@ public interface Parsing {
     public static String getJobId(String str) {
         String[] arr = str.split("/");
         return arr[0];
+    }
+    public static String getPrinterEmailId(String body) {
+        //Parse XML file
+        String printerEmailId =null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(body)));
+            doc.getDocumentElement().normalize();
+            NodeList list = doc.getElementsByTagName("EmailAddress");
+            for (int i = 0; i < list.getLength(); i++) {
+                //Getting one node from the list.
+                Node childNode = list.item(i);
+                printerEmailId = childNode.getTextContent();
+                System.out.println("printerEmailId  : " + childNode.getTextContent());
+            }
+       } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return printerEmailId;
     }
 }
 

@@ -89,12 +89,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             }
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
-        } else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER + OWNER_SHIP)) {
-            //eprintcenter owner ship
-            // routing yet to work
-//            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, exchange.getRequest().getURI());
-            return chain.filter(exchange);
-        } else {
+        }  else {
             return chain.filter(exchange);
         }
     }
@@ -149,6 +144,14 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         if (path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findNgdcRouteUri(RENDER_JOB_URI);
         }
+/*        //onramp /tokens/session/token
+        if (path.contains(ONRAMP + SESSION_TOKEN)) {
+            return gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
+        }
+        //onramp /tokens/session/secret
+        if (path.contains(ONRAMP + SCERET_TOKEN)) {
+            return gen1DeviceService.findNgdcRouteUri(SCERET_TOKEN);
+        }*/
         //offramp /Printers
         if (path.startsWith(OFFRAMP) && hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findAwsRouteUri(OFFRAMP_PRINTERS);

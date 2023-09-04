@@ -44,12 +44,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
         if ((HttpMethod.POST.equals(exchange.getRequest().getMethod())) && (headers.get(CONTENT_TYPE) != null)) {
             return logRequestBody(exchange, chain);
-        } else if (HttpMethod.POST.equals(exchange.getRequest().getMethod()) && uriPath.startsWith(EPRINT_CENTER)) { //eprintcenter PUT request
-            String printerId = findValueFromUri(uriPath, 4);
-            ServerHttpRequest modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, Parsing.getJobId(printerId))).build();
-            ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
-            return chain.filter(modifiedExchange);
-        } else {
+        }  else {
             ServerHttpRequest modifiedRequest = null;
             //---------------------onramp-------------------------------------/
             if (uriPath.startsWith(ONRAMP)) {
@@ -110,9 +105,11 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     String printerId = findValueFromUri(uriPath, 4);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
                 }
-                //eprintcenter owner ship
+                //eprintcenter owner ship uncliam printer
                 if (uriPath.contains(OWNER_SHIP)) {
-                    return chain.filter(exchange);
+                    String ownershipID = findValueFromUri(uriPath, 3);
+                    modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(OWNER_SHIP_ID, ownershipID)).build();
+
                 }
                 ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                 return chain.filter(modifiedExchange);
@@ -155,19 +152,33 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     // must construct a new exchange instance, same as below
                     .create(exchange.mutate().request(mutatedRequest).build(), messageReaders).bodyToMono(String.class).flatMap(body -> {
                         // do what ever you want with this body string, I logged it.
-                        String deviceEmailId = Parsing.getDeviceEmailId(body, DEVICE_EMAILID_XPATH);
-                        logger.info("deviceEmailId: {}", deviceEmailId);
-                        Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
-                        if (deviceEmailId != null) {
-                            exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.DEVICE_EMAIL_ID, deviceEmailId)).build();
-                        } else {
-                            String deviceId = Parsing.getDeviceEmailId(body, DEVICE_ID_XPATH);
-                            logger.info("deviceId: {}", deviceId);
-                            exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, deviceId)).build();
+                         if(body.contains(namespacePrefix)) {
+                            String deviceEmailId = Parsing.getDeviceEmailId(body, DEVICE_EMAILID_XPATH);
+                            logger.info("deviceEmailId: {}", deviceEmailId);
+                            Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
+                            if (deviceEmailId != null) {
+                                exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.DEVICE_EMAIL_ID, deviceEmailId)).build();
+                            } else {
+                                String deviceId = Parsing.getDeviceEmailId(body, DEVICE_ID_XPATH);
+                                logger.info("deviceId: {}", deviceId);
+                                exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.PRINTER_CLOUD_ID, deviceId)).build();
 
+                            }
+
+                            return chain.filter(exchange.mutate().request(mutatedRequest).build());
                         }
+                        else  //eprintcenter owner ship claim printer
+                        {
+                            String printerEmailId = Parsing.getPrinterEmailId(body);
+                            if(printerEmailId !=null) {
+                                exchange.getRequest().mutate().headers(h -> h.set(TsApiGatewayConstants.DEVICE_EMAIL_ID, printerEmailId)).build();
+                            }else{//blacklist //whitelist
+                                String printerId = findValueFromUri(exchange.getRequest().getURI().getPath(), 4);
+                                exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
+                            }
 
-                        return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                            return chain.filter(exchange.mutate().request(mutatedRequest).build());
+                        }
                     });
         });
     }

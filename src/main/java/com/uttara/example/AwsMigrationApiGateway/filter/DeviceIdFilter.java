@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-import static com.uttara.example.AwsMigrationApiGateway.utility.TsApiGatewayConstants.SHARD_CODE_HOST_NAME;
+import static com.uttara.example.AwsMigrationApiGateway.utility.TsApiGatewayConstants.*;
 
 
 @Component
@@ -48,7 +48,7 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange);
             }
         } else if (headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID) != null) {
-            String shardCodeWithHostname = gen1DeviceService.getDevices(headers.get(TsApiGatewayConstants.PRINTER_CLOUD_ID));
+            String shardCodeWithHostname = gen1DeviceService.getDevices(headers.get(PRINTER_CLOUD_ID));
             logger.info(SHARD_CODE_HOST_NAME + ": {}", shardCodeWithHostname);
             if (shardCodeWithHostname != null) {
                 ServerHttpRequest modifiedRequest = exchange
@@ -85,7 +85,27 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
             } else {
                 return chain.filter(exchange);
             }
-        } else {
+        }else if (headers.get(OWNER_SHIP_ID) != null) {
+            String shardCodeWithHostname = gen1DeviceService.getHostNameByShardCode(headers.get(OWNER_SHIP_ID));
+            logger.info(SHARD_CODE_HOST_NAME + ": {}", shardCodeWithHostname);
+            if (shardCodeWithHostname != null) {
+                ServerHttpRequest modifiedRequest = exchange
+                        .getRequest()
+                        .mutate()
+                        .headers(h -> h.set(SHARD_CODE_HOST_NAME, shardCodeWithHostname))
+                        .build();
+
+                ServerWebExchange modifiedExchange = exchange
+                        .mutate()
+                        .request(modifiedRequest)
+                        .build();
+
+                return chain.filter(modifiedExchange);
+            } else {
+                return chain.filter(exchange);
+            }
+        }
+        else {
             return chain.filter(exchange);
         }
     }
