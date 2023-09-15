@@ -89,9 +89,9 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             }
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
-        } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP+HEALTHCHECK)) {
-            //onramp /tokens/session/secret
-            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(HEALTHCHECK);
+        } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP+HEALTHCHECK)) {//onramp/healthcheck
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(ONRAMP+HEALTHCHECK);
             // Append the load balancer name to the URI
             String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
             URI uri = null;
@@ -102,9 +102,22 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             }
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
-        }else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER+HEALTHCHECK)) {
-            //onramp /tokens/session/secret
-            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(HEALTHCHECK);
+        }else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER+HEALTHCHECK)) {//eprintcenter/healthcheck
+             String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER+HEALTHCHECK);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else if (exchange.getRequest().getURI().getPath().contains(OFFRAMP+HEALTHCHECK)) {//offramp/healthcheck
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(OFFRAMP+HEALTHCHECK);
             // Append the load balancer name to the URI
             String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
             URI uri = null;

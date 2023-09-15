@@ -53,31 +53,40 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     String str1 = ONRAMP + PRINT_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
-
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //onramp /jobs/scanjobs/
                 if (uriPath.contains(SCAN_JOB_URI)) {
                     String str1 = ONRAMP + SCAN_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //onramp /jobs/deliveryonlyjobs/
                 if (uriPath.contains(DELIVERY_ONLY_JOB_URI)) {
                     String str1 = ONRAMP + DELIVERY_ONLY_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //onramp /devices/printers/
                 if (uriPath.contains(DEVICE_JOB_URI)) {
                     String str1 = ONRAMP + DEVICE_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //onramp /jobs/renderjobs/
                 if (uriPath.contains(RENDER_JOB_URI)) {
                     String str1 = ONRAMP + RENDER_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //onramp /tokens/session/token
                 if (uriPath.contains(SESSION_TOKEN)) {
@@ -87,8 +96,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                 if (uriPath.contains(SCERET_TOKEN)) {
                     return chain.filter(exchange);
                 }
-                ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
-                return chain.filter(modifiedExchange);
+                return chain.filter(exchange);
             }
             /**
              * if block will be executed for eprintcenter 'GET' request
@@ -99,20 +107,26 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     String str1 = EPRINT_CENTER + PRINT_JOB_URI;
                     String str2 = uriPath.substring(str1.length(), uriPath.length() - 1);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(JOB_ID, Parsing.getJobId(str2))).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //eprintcenter /devices/printers/
                 if (uriPath.contains(DEVICE_JOB_URI)) {
                     String printerId = findValueFromUri(uriPath, 4);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
                 //eprintcenter owner ship uncliam printer
                 if (uriPath.contains(OWNER_SHIP)) {
                     String ownershipID = findValueFromUri(uriPath, 3);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(OWNER_SHIP_ID, ownershipID)).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
 
                 }
-                ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
-                return chain.filter(modifiedExchange);
+
+                return chain.filter(exchange);
             }
 
             /**
@@ -123,12 +137,15 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                 if (uriPath.contains(OFFRAMP_PRINTERS)) {
                     String printerId = findValueFromUri(uriPath, 3);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(PRINTER_CLOUD_ID, printerId)).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 } else {
                     String deviceEmailId = findValueFromUri(uriPath, 2);
                     modifiedRequest = exchange.getRequest().mutate().headers(h -> h.set(DEVICE_EMAIL_ID, deviceEmailId)).build();
+                    ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
+                    return chain.filter(modifiedExchange);
                 }
-                ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
-                return chain.filter(modifiedExchange);
+
             }
             return chain.filter(exchange);
         }
