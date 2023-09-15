@@ -15,6 +15,7 @@ public interface TsApiGatewayConstants {
     public static final String DEVICE_EMAILID_XPATH = "/ns1:PrintJob/ns1:PrintJobProcessingElements/ns1:DeviceEmailId/text()";
     public static final String HTTPS = "https://";
     public static final String AMAZON_AWS = "amazonaws";
+    public static final String HEALTHCHECK = "/healthcheck";
     public static final String ONRAMP = "/onramp";
     public static final String EPRINT_CENTER = "/eprintcenter";
     public static final String OFFRAMP = "/offramp";

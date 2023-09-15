@@ -89,7 +89,34 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             }
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
-        }  else {
+        } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP+HEALTHCHECK)) {
+            //onramp /tokens/session/secret
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(HEALTHCHECK);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER+HEALTHCHECK)) {
+            //onramp /tokens/session/secret
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(HEALTHCHECK);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else {
             return chain.filter(exchange);
         }
     }
@@ -144,14 +171,6 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         if (path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findNgdcRouteUri(RENDER_JOB_URI);
         }
-/*        //onramp /tokens/session/token
-        if (path.contains(ONRAMP + SESSION_TOKEN)) {
-            return gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
-        }
-        //onramp /tokens/session/secret
-        if (path.contains(ONRAMP + SCERET_TOKEN)) {
-            return gen1DeviceService.findNgdcRouteUri(SCERET_TOKEN);
-        }*/
         //offramp /Printers
         if (path.startsWith(OFFRAMP) && hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findAwsRouteUri(OFFRAMP_PRINTERS);
