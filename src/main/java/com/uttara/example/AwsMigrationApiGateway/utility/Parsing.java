@@ -58,9 +58,27 @@ public interface Parsing {
                 //Getting one node from the list.
                 Node childNode = list.item(i);
                 printerEmailId = childNode.getTextContent();
-                System.out.println("printerEmailId  : " + childNode.getTextContent());
-            }
+                        }
        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return printerEmailId;
+    }
+    public static String getPrinterEmail(String body) {
+        //Parse XML file
+        String printerEmailId =null;
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setNamespaceAware(true);
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document doc = builder.parse(new InputSource(new StringReader(body)));
+            doc.getDocumentElement().normalize();
+            NodeList list = doc.getElementsByTagName("DeviceEmailId");
+            for (int i = 0; i < list.getLength(); i++) {
+                //Getting one node from the list.
+                Node childNode = list.item(i);
+                printerEmailId = childNode.getTextContent();}
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return printerEmailId;
