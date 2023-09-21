@@ -29,5 +29,32 @@ public interface TsApiGatewayConstants {
     public static final String OFFRAMP_PRINTERS = "/Printers/";
     public static final String OWNER_SHIP = "/ownerships";
 
+    public static final String VALIDATE_PRINTER = "/ValidatePrinter";
+
+    public static final String PRINTERS = "/Printers";
+
+    public static final String V1 = "/v1/";
+
+    public static final String V2 = "/v2/";
+    public static final String OWNERSHIP = "ownerships";
+
+    public static final String STATUS = "/status";
+
+    public static final String DEVICEPRINTERS ="/devices/printers";
+
+    public static final String SCANNER_CAPABILITIES = "/ScannerCapabilities";
+
+    public static final String SCAN_JOBS = "/ScanJobs";
+
+    public static final String VERSION = "/version";
+    public static final String VERSION_ = "/version/";
+
+    public static final String SCANNER_STATUS = "/ScannerStatus";
+    public static final String EMAIL_ADDRESS = "/EmailAddress/";
+    public static final String JOB_OUPUT = "/Printers/PrintJobs/Output/";
+
+
+
+
 
 }

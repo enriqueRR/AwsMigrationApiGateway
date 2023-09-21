@@ -74,6 +74,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            logger.info("route Url: {}", newUri);
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
         } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP + SCERET_TOKEN)) {
@@ -87,6 +88,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            logger.info("route Url: {}", newUri);
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
         } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP+HEALTHCHECK)) {//onramp/healthcheck
@@ -100,6 +102,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            logger.info("route Url: {}", newUri);
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
         }else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER+HEALTHCHECK)) {//eprintcenter/healthcheck
@@ -112,6 +115,7 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            logger.info("route Url: {}", newUri);
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
         }
@@ -126,12 +130,44 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else if (exchange.getRequest().getURI().getPath().contains(VERSION_)) {// onramp/version
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(ONRAMP+VERSION_);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else if (exchange.getRequest().getURI().getPath().contains(VERSION)) {// eprintcenter/version
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER+VERSION);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("route Url: {}", newUri);
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
         }
         else {
             return chain.filter(exchange);
         }
+
     }
 
     private String fetchLBRoute(String path, String hostname) {
