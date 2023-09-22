@@ -55,6 +55,16 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
              */
             if (uriPath.startsWith(ONRAMP))
             {
+                if (exchange.getRequest().getURI().getPath().equals(ONRAMP+JOBS))
+                {
+                    // method type=GET /jobs/ ===>jobs
+                    return chain.filter(exchange);
+                }
+                if (exchange.getRequest().getURI().getPath().equals(ONRAMP+PRINT_JOB_URI))
+                {
+                    // method type=GET  /jobs/printjobs/ ===>printJobs
+                    return chain.filter(exchange);
+                }
                 if (exchange.getRequest().getURI().getPath().contains(PRINT_JOB_URI))
                 {
                     // method type=PUT /jobs/printjobs/{JOBID}/cancel/ ===>cancelPrint
@@ -81,6 +91,7 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                     return chain.filter(modifiedExchange);
                 }
+
                 if (uriPath.contains(VERSION))
                 {
                     // method type=GET /version ===>cpgVersion
@@ -181,8 +192,6 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                     return chain.filter(modifiedExchange);
                 }
                 //method type GET prepapi/validate ===>prePAPIValidate
-                // method type=GET /jobs/ ===>jobs
-                // method type=GET  /jobs/printjobs ===>printJobs
                 return chain.filter(exchange);
             }
             /*
@@ -198,13 +207,14 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
                      ServerWebExchange modifiedExchange = exchange.mutate().request(modifiedRequest).build();
                      return chain.filter(modifiedExchange);
                 }
-/*                if (uriPath.contains("/devices/printers"))
+                 if (uriPath.contains("/devices/printers"))
                 {
                     //method type GET  /devices/printers ===>printer
                     //method type PUT  /devices/printers ===>printer
                     //method type POST  /devices/printers===>printer
                     //method type DELETE  /devices/printers ===>printer
-                }*/
+                    return chain.filter(exchange);
+                }
                 if (uriPath.contains(VERSION_))
                 {
                     //method type GET  /version/ ===>GET

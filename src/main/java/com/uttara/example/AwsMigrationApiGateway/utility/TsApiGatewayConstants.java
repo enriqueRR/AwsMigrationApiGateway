@@ -53,6 +53,8 @@ public interface TsApiGatewayConstants {
     public static final String EMAIL_ADDRESS = "/EmailAddress/";
     public static final String JOB_OUPUT = "/Printers/PrintJobs/Output/";
 
+    public static final String JOBS = "/jobs/";
+
 
 
 
