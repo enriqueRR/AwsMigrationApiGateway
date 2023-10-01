@@ -1,7 +1,6 @@
 package com.uttara.example.AwsMigrationApiGateway.filter;
 
 import com.uttara.example.AwsMigrationApiGateway.service.Gen1DeviceService;
-import com.uttara.example.AwsMigrationApiGateway.service.LaunchDarklyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +11,9 @@ import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-
 import static com.uttara.example.AwsMigrationApiGateway.utility.TsApiGatewayConstants.*;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_REQUEST_URL_ATTR;
 
@@ -24,51 +21,41 @@ import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.G
 public class RedirectionFilter implements GatewayFilter, Ordered {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
-    @Autowired
-    LaunchDarklyClient launchDarklyClient;
+
     @Autowired
     private Gen1DeviceService gen1DeviceService;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        logger.info("---RedirectionFilter---");
+
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
-        String selectedLoadBalancer = null;
-        String newUri = null;
-        URI uri = null;
-        if (launchDarklyClient.getFlagValueNgdc()) {
-            String path = exchange.getRequest().getURI().getPath();
-            String[] segments = path.split("/");
-            String s = "/" + segments[2] + "/" + segments[3] + "/";
-            selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(s);
-            newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-            logger.info("NGDC route url: {}", newUri);
-            try {
-                uri = new URI(newUri);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-            return chain.filter(exchange);
-        } else if (launchDarklyClient.getFlagValueAws()) {
-            String path = exchange.getRequest().getURI().getPath();
-            String[] segments = path.split("/");
-            String s = "/" + segments[2] + "/" + segments[3] + "/";
-            selectedLoadBalancer = gen1DeviceService.findAwsRouteUri(s);
-            newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-            logger.info("AWS route url: {}", newUri);
-            try {
-                uri = new URI(newUri);
-            } catch (URISyntaxException e) {
-                throw new RuntimeException(e);
-            }
-            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-            return chain.filter(exchange);
-        } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP + SCERET_TOKEN)) {
-            //onramp /tokens/session/secret
-            selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
+        logger.info("---Inside redirection filter-------");
+        String hostname = headers.get(HOST_NAME);
+        if (hostname != null && hostname.contains(AMAZON_AWS)) {
+            logger.info("-----AWS route------");
+            String selectedLoadBalancer = fetchLBRoute(exchange.getRequest().getURI().getPath(), hostname);
+
             // Append the load balancer name to the URI
-            newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            logger.info("AWS route Url: {}", newUri);
+
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        } else if (hostname != null && !hostname.contains(AMAZON_AWS)) {
+            logger.info("-----NGDC route------");
+            String selectedLoadBalancer = fetchLBRoute(exchange.getRequest().getURI().getPath(), hostname);
+
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            logger.info("NGDC route Url: {}", newUri);
+
+            URI uri = null;
             try {
                 uri = new URI(newUri);
             } catch (URISyntaxException e) {
@@ -78,119 +65,109 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
             return chain.filter(exchange);
         } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP + SESSION_TOKEN)) {
             //onramp /tokens/session/token
-            selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(SCERET_TOKEN);
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
             // Append the load balancer name to the URI
-            newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
             try {
                 uri = new URI(newUri);
             } catch (URISyntaxException e) {
                 throw new RuntimeException(e);
             }
+            logger.info("route Url: {}", newUri);
             exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
             return chain.filter(exchange);
-        } else {
-            String hostname = headers.get(HOST_NAME);
-            if (hostname != null && hostname.contains(AMAZON_AWS)) {
-                logger.info("---AWS Route---");
-                selectedLoadBalancer = fetchLBRoute(exchange.getRequest().getURI().getPath(), hostname);
-
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                logger.info("AWS route url: {}", newUri);
-
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
-            } else if (hostname != null && !hostname.contains(AMAZON_AWS)) {
-                logger.info("---NGDC Route---");
-                selectedLoadBalancer = fetchLBRoute(exchange.getRequest().getURI().getPath(), hostname);
-
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                logger.info("NGDC route url: {}", newUri);
-
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
-            } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP+HEALTHCHECK)) {//onramp/healthcheck
-
-                selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(ONRAMP+HEALTHCHECK);
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.info("route Url: {}", newUri);
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
-            } else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER+HEALTHCHECK)) {//eprintcenter/healthcheck
-                selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER+HEALTHCHECK);
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.info("route Url: {}", newUri);
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
+        } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP + SCERET_TOKEN)) {
+            //onramp /tokens/session/secret
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(SCERET_TOKEN);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
-            else if (exchange.getRequest().getURI().getPath().contains(OFFRAMP+HEALTHCHECK)) {//offramp/healthcheck
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        } else if (exchange.getRequest().getURI().getPath().contains(ONRAMP+HEALTHCHECK)) {//onramp/healthcheck
 
-                selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(OFFRAMP+HEALTHCHECK);
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.info("route Url: {}", newUri);
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(ONRAMP+HEALTHCHECK);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
-            else if (exchange.getRequest().getURI().getPath().contains(VERSION_)) {// onramp/version
-
-                selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(ONRAMP+VERSION_);
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.info("route Url: {}", newUri);
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }else if (exchange.getRequest().getURI().getPath().contains(EPRINT_CENTER+HEALTHCHECK)) {//eprintcenter/healthcheck
+             String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER+HEALTHCHECK);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
             }
-            else if (exchange.getRequest().getURI().getPath().contains(VERSION)) {// eprintcenter/version
-
-                selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER+VERSION);
-                // Append the load balancer name to the URI
-                newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
-                try {
-                    uri = new URI(newUri);
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
-                }
-                logger.info("route Url: {}", newUri);
-                exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
-                return chain.filter(exchange);
-            } else {
-                return chain.filter(exchange);
-            }
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
         }
+        else if (exchange.getRequest().getURI().getPath().contains(OFFRAMP+HEALTHCHECK)) {//offramp/healthcheck
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(OFFRAMP+HEALTHCHECK);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else if (exchange.getRequest().getURI().getPath().contains(VERSION_)) {// onramp/version
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(ONRAMP+VERSION_);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else if (exchange.getRequest().getURI().getPath().contains(VERSION)) {// eprintcenter/version
+
+            String selectedLoadBalancer = gen1DeviceService.findNgdcRouteUri(EPRINT_CENTER+VERSION);
+            // Append the load balancer name to the URI
+            String newUri = HTTPS + selectedLoadBalancer + exchange.getRequest().getURI().getPath();
+            URI uri = null;
+            try {
+                uri = new URI(newUri);
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+            logger.info("route Url: {}", newUri);
+            exchange.getAttributes().put(GATEWAY_REQUEST_URL_ATTR, uri);
+            return chain.filter(exchange);
+        }
+        else {
+            return chain.filter(exchange);
+        }
+
     }
 
     private String fetchLBRoute(String path, String hostname) {
@@ -243,14 +220,6 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         if (path.startsWith(ONRAMP) && !hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findNgdcRouteUri(RENDER_JOB_URI);
         }
-/*        //onramp /tokens/session/token
-        if (path.contains(ONRAMP + SESSION_TOKEN)) {
-            return gen1DeviceService.findNgdcRouteUri(SESSION_TOKEN);
-        }
-        //onramp /tokens/session/secret
-        if (path.contains(ONRAMP + SCERET_TOKEN)) {
-            return gen1DeviceService.findNgdcRouteUri(SCERET_TOKEN);
-        }*/
         //offramp /Printers
         if (path.startsWith(OFFRAMP) && hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findAwsRouteUri(OFFRAMP_PRINTERS);
@@ -258,9 +227,9 @@ public class RedirectionFilter implements GatewayFilter, Ordered {
         if (path.startsWith(OFFRAMP) && !hostname.contains(AMAZON_AWS)) {
             return gen1DeviceService.findNgdcRouteUri(OFFRAMP_PRINTERS);
         }
-        return NO_ROUTE_FOUND;
-    }
+        return "no route found";
 
+    }
 
     @Override
     public int getOrder() {

@@ -55,6 +55,8 @@ public interface TsApiGatewayConstants {
 
     public static final String JOBS = "/jobs/";
 
-    public static final String NO_ROUTE_FOUND = "no route found";
+
+
+
 
 }
