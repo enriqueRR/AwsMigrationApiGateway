@@ -1,7 +1,9 @@
 package com.uttara.example.AwsMigrationApiGateway.filter;
 
+import com.uttara.example.AwsMigrationApiGateway.service.LaunchDarklyClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -21,12 +23,17 @@ import static com.uttara.example.AwsMigrationApiGateway.utility.TsApiGatewayCons
 public class ShardCodeFilter implements GlobalFilter, Ordered {
     final Logger logger = LoggerFactory.getLogger(getClass());
 
+    @Autowired
+    LaunchDarklyClient launchDarklyClient;
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         logger.info("----ShardCodeFilter executed----");
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
         String shardCodeWithHostname = headers.get(SHARD_CODE_HOST_NAME);
-        if (shardCodeWithHostname != null) {
+        if(launchDarklyClient.getFlagValueNgdc() || launchDarklyClient.getFlagValueAws()) {
+            return chain.filter(exchange);
+        }
+        else if (shardCodeWithHostname != null) {
             List<String> s = Stream.of(shardCodeWithHostname.split("/")).collect(Collectors.toList());
             logger.info("ShardCode: {}; HostName: {}", s.get(0), s.get(1));
             ServerHttpRequest modifiedRequest = exchange

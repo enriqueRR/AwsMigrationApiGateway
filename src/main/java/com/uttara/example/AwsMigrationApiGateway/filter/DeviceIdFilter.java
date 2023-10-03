@@ -1,6 +1,7 @@
 package com.uttara.example.AwsMigrationApiGateway.filter;
 
 import com.uttara.example.AwsMigrationApiGateway.service.Gen1DeviceService;
+import com.uttara.example.AwsMigrationApiGateway.service.LaunchDarklyClient;
 import com.uttara.example.AwsMigrationApiGateway.utility.TsApiGatewayConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +25,16 @@ public class DeviceIdFilter implements GlobalFilter, Ordered {
 
     @Autowired
     private Gen1DeviceService gen1DeviceService;
+    @Autowired
+    private LaunchDarklyClient launchDarklyClient;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         logger.info("---DeviceIdFilter----");
         Map<String, String> headers = exchange.getRequest().getHeaders().toSingleValueMap();
+        if(launchDarklyClient.getFlagValueNgdc() || launchDarklyClient.getFlagValueAws()) {
+            return chain.filter(exchange);
+        }
         if (headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID) != null) {
             String shardCodeWithHostname = gen1DeviceService.getDeviceEmailId(headers.get(TsApiGatewayConstants.DEVICE_EMAIL_ID));
             logger.info(SHARD_CODE_HOST_NAME + ": {}", shardCodeWithHostname);

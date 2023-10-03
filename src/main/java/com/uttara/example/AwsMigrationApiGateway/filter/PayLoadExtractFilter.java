@@ -1,9 +1,11 @@
 package com.uttara.example.AwsMigrationApiGateway.filter;
 
+import com.uttara.example.AwsMigrationApiGateway.service.LaunchDarklyClient;
 import com.uttara.example.AwsMigrationApiGateway.utility.Parsing;
 import com.uttara.example.AwsMigrationApiGateway.utility.TsApiGatewayConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
@@ -35,7 +37,8 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
         return HandlerStrategies.withDefaults().messageReaders();
     }
 
-
+    @Autowired
+    private LaunchDarklyClient launchDarklyClient;
 
 
     @Override
@@ -44,7 +47,10 @@ public class PayLoadExtractFilter implements GlobalFilter, Ordered {
         String uriPath = exchange.getRequest().getURI().getPath();
         // extracting the deviceId,deviceEmailId,printerID,JobId from payload
         // Only apply on POST requests
-        if (HttpMethod.POST.equals(exchange.getRequest().getMethod()))
+        if(launchDarklyClient.getFlagValueNgdc() || launchDarklyClient.getFlagValueAws()) {
+            return chain.filter(exchange);
+        }
+        else if (HttpMethod.POST.equals(exchange.getRequest().getMethod()))
         {
             return logRequestBody(exchange, chain);
         }
